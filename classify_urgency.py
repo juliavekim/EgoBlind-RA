@@ -7,7 +7,12 @@ import datetime
 import cv2  # pip3 install opencv-python
 from openai import OpenAI  # pip3 install openai
 
-client = OpenAI(api_key="KEY_REDACTED")
+client = OpenAI(api_key="REDACTED")
+
+# ---- SETTINGS ----
+# Set to None to run all rows, or a number like 100 to limit
+MAX_ROWS = None
+# ------------------
 
 PROJECT_DIR = "."
 VIDEO_DIR = os.path.join(PROJECT_DIR, "train_videos")
@@ -16,6 +21,35 @@ OUTPUT_PATH = os.path.join(PROJECT_DIR, "train_labeled.csv")
 CHECKPOINT_PATH = os.path.join(PROJECT_DIR, "checkpoint.json")
 
 MODEL = "gpt-5.2-2025-12-11"
+
+SYSTEM_PROMPT = (
+    "You are a classifier for the EgoBlind dataset, which contains egocentric "
+    "video from blind or visually impaired people navigating the real world. "
+    "You must classify each question as 'urgent' or 'not_urgent'.\n\n"
+    "A question is URGENT if reducing response latency would significantly "
+    "improve safety, prevent physical harm, or prevent irreversible loss "
+    "or missed opportunity — meaning speed is more important than perfect "
+    "accuracy in this situation.\n\n"
+    "Classify as URGENT when:\n"
+    "- The person is about to take an immediate physical action (stepping, crossing, "
+    "touching, boarding, pouring, cutting, exiting a vehicle, etc.)\n"
+    "- The answer will immediately influence the person's next physical movement or decision\n"
+    "- The environment is dynamic or changing (moving vehicles, closing doors, "
+    "approaching obstacles, active traffic)\n"
+    "- There is imminent risk of injury (traffic, falling, tripping, burns, sharp objects)\n"
+    "- There is risk of losing something or missing a time-sensitive opportunity "
+    "(vehicle leaving, item left behind, boarding ending)\n\n"
+    "Classify as NOT_URGENT when:\n"
+    "- Accuracy is more important than speed\n"
+    "- The question is descriptive or exploratory\n"
+    "- It involves reading text, identifying medications or products, or verifying "
+    "information where correctness matters more than immediacy\n"
+    "- It concerns planning or orientation without imminent movement or time pressure\n"
+    "- Delay would not meaningfully change the outcome\n\n"
+    "Use the video context to determine whether the situation involves "
+    "immediate action, dynamic change, or time-sensitive consequences.\n\n"
+    "Respond with ONLY one word: urgent or not_urgent."
+)
 
 
 def extract_frames(video_path, num_frames=5):
@@ -62,7 +96,8 @@ def classify_urgency(video_name, question, start_time):
             f"These are frames from an egocentric video recorded by a blind person "
             f"(start time: {start_time}s). They are asking the following question:\n\n"
             f"Question: {question}\n\n"
-            f"Does this person need an immediate answer for their safety or navigation? "
+            f"Is this person in an immediate action-risk situation where delay increases danger, "
+            f"or is this a time-sensitive question where a slow response makes the answer useless? "
             f"Respond with ONLY: urgent or not_urgent"
         )
     })
@@ -71,25 +106,7 @@ def classify_urgency(video_name, question, start_time):
         model=MODEL,
         reasoning_effort="xhigh",
         messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a classifier for the EgoBlind dataset, which contains egocentric "
-                    "video from blind or visually impaired people navigating the real world. "
-                    "You must classify each question as 'urgent' or 'not_urgent'.\n\n"
-                    "A question is URGENT if it relates to:\n"
-                    "- Immediate physical safety (oncoming cars, traffic, crossing streets)\n"
-                    "- Obstacles or hazards (stairs, curbs, holes, objects in the path)\n"
-                    "- Navigation decisions that need a fast answer (is it safe to walk, which way to go)\n"
-                    "- Any danger or time-sensitive situation\n\n"
-                    "A question is NOT_URGENT if it relates to:\n"
-                    "- General scene description (what is around me, describe the area)\n"
-                    "- Reading text (signs, labels, menus)\n"
-                    "- Identifying objects with no safety implication (what color is this, what brand is this)\n"
-                    "- Non-time-sensitive information\n\n"
-                    "Respond with ONLY one word: urgent or not_urgent"
-                )
-            },
+            {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": content}
         ],
         max_completion_tokens=2048
@@ -129,7 +146,9 @@ def main():
         reader = csv.DictReader(f)
         rows = list(reader)
 
-    print(f"Loaded {len(rows)} questions.")
+    total_rows = len(rows)
+    run_rows = min(MAX_ROWS, total_rows) if MAX_ROWS else total_rows
+    print(f"Loaded {total_rows} questions. Running on first {run_rows}.")
 
     checkpoint = load_checkpoint()
     start_index = checkpoint["last_completed_index"] + 1
@@ -140,7 +159,7 @@ def main():
 
     start_time_clock = time.time()
 
-    for i in range(start_index, len(rows)):
+    for i in range(start_index, run_rows):
         row = rows[i]
         video_name = row["video_name"]
         question = row["question"]
@@ -167,12 +186,12 @@ def main():
             elapsed = time.time() - start_time_clock
             rows_done = i + 1 - start_index
             rate = rows_done / elapsed
-            remaining = (len(rows) - (i + 1)) / rate
+            remaining = (run_rows - (i + 1)) / rate
             eta = datetime.datetime.now() + datetime.timedelta(seconds=remaining)
             urgent_count = sum(1 for v in labels.values() if v == "urgent")
             total_labeled = len(labels)
             print(
-                f"  === [{i + 1}/{len(rows)}] "
+                f"  === [{i + 1}/{run_rows}] "
                 f"{rate:.1f} rows/sec | "
                 f"ETA: {eta.strftime('%H:%M:%S')} | "
                 f"~{remaining / 60:.0f} min remaining | "
@@ -182,21 +201,22 @@ def main():
         time.sleep(0.5)
 
     # Final checkpoint
-    checkpoint["last_completed_index"] = len(rows) - 1
+    checkpoint["last_completed_index"] = run_rows - 1
     checkpoint["labels"] = labels
     save_checkpoint(checkpoint)
 
     # Apply labels and write output
-    for i, row in enumerate(rows):
-        row["urgency"] = labels.get(str(i), "not_urgent")
+    for i in range(run_rows):
+        rows[i]["urgency"] = labels.get(str(i), "not_urgent")
 
+    # Only write the rows we processed
     fieldnames = list(rows[0].keys())
     with open(OUTPUT_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(rows[:run_rows])
 
-    print(f"Done! Output saved to {OUTPUT_PATH}")
+    print(f"Done! Output saved to {OUTPUT_PATH} ({run_rows} rows)")
 
 
 if __name__ == "__main__":
