@@ -46,7 +46,7 @@ EgoBlind-RA/
 │   ├── generate_dpo_pairs.py          # DPO pair construction with composite loss
 │   ├── kimi_api_baseline.py           # Kimi API baseline evaluation
 │   ├── aws_setup.sh                   # AWS spot instance setup
-│   └── remote_setup.sh               # remote environment setup
+│   └── remote_setup.sh                # remote environment setup
 │
 ├── results/
 │   └── baseline/
@@ -56,8 +56,9 @@ EgoBlind-RA/
 │       ├── top_20_results.json
 │       └── summary_table.tsv
 │
-├── julia_projects/                    # Julia's individual coursework (HW1–3)
-├── xander_projects/                   # Xander's individual coursework (HW1–3)
+├── MMAI_projects/                     # Our individual MMAI coursework (HW1–3)
+│   └── julia_projects/                # Julia's individual coursework (HW1–3)
+│   └── xander_projects/               # Xander's individual coursework (HW1–3)
 │
 ├── LICENSE
 └── README.md
