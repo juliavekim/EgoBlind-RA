@@ -64,7 +64,13 @@ EgoBlind-RA/
 └── README.md
 ```
 
-## Data Examples
+## Data
+The dataset is derived from the **EgoBlind** project (Xiao et al., 2025).  As described [here](https://github.com/doc-doc/EgoBlind), the data is characterised by: 
+
+- **Regions of Interest (ROI):** Often off-center and not well-focused, reflecting the challenges of egocentric visual perception.  
+- **Questions:** Formulated to capture user intention in specific situations. They may be ambiguous if spatial and temporal context is ignored.  
+- **Answers:** Must be not only visually correct but also contextually helpful to the user, considering both space and time.  
+
 ![egoblind](https://github.com/user-attachments/assets/eaeae917-ffab-47f3-a68d-cca74118fcde)
 *(Source: [EgoBlind GitHub](https://github.com/doc-doc/EgoBlind))*
 
