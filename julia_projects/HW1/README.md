@@ -11,7 +11,6 @@ End-to-end multimodal data preprocessing, feature extraction, and visualization 
 
 - 360 video clips (`.mp4`) from 3 actors
 - 8 emotion classes: neutral, calm, happy, sad, angry, fearful, disgust, surprised
-- 
 
 ### Modalities Extracted
 
