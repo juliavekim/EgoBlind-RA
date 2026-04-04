@@ -4,8 +4,6 @@ Risk-adaptive egocentric visual assistance for blind and low-vision users. Class
 
 **Julia Kim & Xander Backus** · MIT · Equal contribution
 
----
-
 ## Overview
 
 Existing multimodal models apply a single inference policy across all queries, ignoring variability in urgency and risk. EgoBlind-RA addresses this by classifying each query as *urgent* or *non-urgent* and routing it accordingly:
@@ -24,8 +22,6 @@ We implement and compare two architectures:
 | Inference VRAM | 2× model loads | 1× model load |
 
 The core question: can a single model learn to behave differently based on an urgency tag, or does hard-routing to specialized models produce better results?
-
----
 
 ## Repo structure
 
@@ -67,8 +63,6 @@ EgoBlind-RA/
 └── README.md
 ```
 
----
-
 ## Pipeline
 
 ### 1. Urgency annotation (teacher)
@@ -105,8 +99,6 @@ low-latency  best-of-k
 
 **Approach 2 (Julia):** appends `[URGENT]` or `[NON-URGENT]` tag to a single LoRA adapter trained on a mixed objective.
 
----
-
 ## Metrics
 
 | Component | Metric |
@@ -114,8 +106,6 @@ low-latency  best-of-k
 | Urgency classifier | F1 |
 | Generative model | Accuracy + utility score (EgoBlind) |
 | Urgent responses | Latency penalty (generation time + verbosity) |
-
----
 
 ## Reproducing
 
@@ -179,13 +169,9 @@ python scripts/inference.py \
     --output_path output/unified_predictions.json
 ```
 
----
-
 ## Results
 
 Baseline results are in `results/baseline/`. See `summary_table.tsv` for a full breakdown and `best_config_breakdown.json` for the top configuration analysis.
-
----
 
 ## References
 
