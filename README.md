@@ -121,7 +121,7 @@ pip install openai torch torchvision transformers
 export MOONSHOT_API_KEY="your-key-here"
 ```
 
-### Phase 1 — Baseline (laptop)
+### Phase 1: Baseline (laptop)
 
 ```bash
 python scripts/kimi_api_baseline.py \
@@ -129,7 +129,7 @@ python scripts/kimi_api_baseline.py \
     --output_path results/baseline/baseline_predictions.json
 ```
 
-### Phase 2 — Training (AWS)
+### Phase 2: Training (AWS)
 
 ```bash
 # 1. Launch and set up instance
@@ -165,7 +165,7 @@ scp -r ubuntu@<IP>:~/LLaMA-Factory/output/ ./output/
 
 > ⚠️ **Important:** terminate your AWS instance when done. Download the adapter checkpoint (~200–400MB) before shutting down.
 
-### Phase 3 — Evaluation
+### Phase 3: Evaluation
 
 ```bash
 python scripts/inference.py \
