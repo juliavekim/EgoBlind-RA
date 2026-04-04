@@ -66,6 +66,7 @@ EgoBlind-RA/
 
 ## Data Examples
 ![egoblind](https://github.com/user-attachments/assets/eaeae917-ffab-47f3-a68d-cca74118fcde)
+*(Source: [EgoBlind GitHub](https://github.com/doc-doc/EgoBlind))*
 
 ## Pipeline
 
