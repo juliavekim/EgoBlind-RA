@@ -163,7 +163,7 @@ llamafactory-cli train configs/dpo_unified.yaml
 scp -r ubuntu@<IP>:~/LLaMA-Factory/output/ ./output/
 ```
 
-> **Important:** terminate your AWS instance when done. Download the adapter checkpoint (~200–400MB) before shutting down.
+> ⚠️ **Important:** terminate your AWS instance when done. Download the adapter checkpoint (~200–400MB) before shutting down.
 
 ### Phase 3 — Evaluation
 
