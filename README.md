@@ -13,7 +13,7 @@ Existing multimodal models apply a single inference policy across all queries, i
 
 We implement and compare two architectures:
 
-| | Approach 1 — Xander | Approach 2 — Julia |
+| | Approach 1: Xander | Approach 2: Julia |
 |-|---------------------|---------------------|
 | Models | Two separate LoRA adapters | One single LoRA adapter |
 | Routing | Classifier → different models | Classifier → different system prompts |
