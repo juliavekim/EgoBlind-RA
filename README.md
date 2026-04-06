@@ -56,10 +56,6 @@ EgoBlind-RA/
 │       ├── top_20_results.json
 │       └── summary_table.tsv
 │
-├── MMAI_projects/                     # Our individual MMAI coursework (HW1–3)
-│   └── julia_projects/                # Julia's individual coursework (HW1–3)
-│   └── xander_projects/               # Xander's individual coursework (HW1–3)
-│
 ├── LICENSE
 └── README.md
 ```
