@@ -31,14 +31,11 @@ EgoBlind-RA/
 │   ├── train_labeled.csv              # GPT-annotated urgency labels (train)
 │   ├── test_labeled.csv               # GPT-annotated urgency labels (test)
 │   └── baseline_frames/               # extracted video frames for baseline eval
-│
 ├── docs/
 │   ├── project_proposal.pdf
 │   └── midterm_report.pdf
-│
 ├── models/
 │   └── CLIP_Urgency_Classifier.ipynb  # CLIP-based binary urgency classifier
-│
 ├── scripts/
 │   ├── classify_urgency.py            # GPT labeling pipeline (teacher model)
 │   ├── prepare_egoblind_data.py       # dataset preprocessing + urgency tagging
@@ -47,7 +44,6 @@ EgoBlind-RA/
 │   ├── kimi_api_baseline.py           # Kimi API baseline evaluation
 │   ├── aws_setup.sh                   # AWS spot instance setup
 │   └── remote_setup.sh                # remote environment setup
-│
 ├── results/
 │   └── baseline/
 │       ├── all_results.json
@@ -55,7 +51,6 @@ EgoBlind-RA/
 │       ├── best_config_breakdown.json
 │       ├── top_20_results.json
 │       └── summary_table.tsv
-│
 ├── LICENSE
 └── README.md
 ```
