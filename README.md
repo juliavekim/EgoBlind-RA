@@ -28,29 +28,48 @@ The core question: can a single model learn to behave differently based on an ur
 ```
 EgoBlind-RA/
 ├── data/
-│   ├── train_labeled.csv              # GPT-annotated urgency labels (train)
-│   ├── test_labeled.csv               # GPT-annotated urgency labels (test)
-│   └── baseline_frames/               # extracted video frames for baseline eval
+│   ├── train_labeled.csv
+│   ├── test_labeled.csv
+│   └── baseline_frames/
 ├── docs/
 │   ├── project_proposal.pdf
-│   └── midterm_report.pdf
+│   └── midterm_proposal.pdf
 ├── models/
-│   └── CLIP_Urgency_Classifier.ipynb  # CLIP-based binary urgency classifier
+│   ├── clip_urgency_classifier.ipynb
+│   └── prompt_conditioned_unified_model.ipynb
 ├── scripts/
-│   ├── classify_urgency.py            # GPT labeling pipeline (teacher model)
-│   ├── prepare_egoblind_data.py       # dataset preprocessing + urgency tagging
-│   ├── inference.py                   # single-model inference with tag routing
-│   ├── generate_dpo_pairs.py          # DPO pair construction with composite loss
-│   ├── kimi_api_baseline.py           # Kimi API baseline evaluation
-│   ├── aws_setup.sh                   # AWS spot instance setup
-│   └── remote_setup.sh                # remote environment setup
+│   ├── classify_urgency.py
+│   ├── run_baseline.py
+│   ├── step2_grid_search.py
+│   ├── filter_grid_search.py
+│   ├── prepare_data.py
+│   ├── prepare_egoblind_data.py
+│   ├── save_frames.py
+│   ├── extract_frames.py
+│   ├── kimi_api_baseline.py
+│   ├── inference.py
+│   ├── generate_dpo_pairs.py
+│   ├── aws_setup.sh
+│   └── remote_setup.sh
 ├── results/
 │   └── baseline/
 │       ├── all_results.json
 │       ├── baseline_predictions.json
 │       ├── best_config_breakdown.json
 │       ├── top_20_results.json
-│       └── summary_table.tsv
+│       ├── summary_table.tsv
+│       └── engaging_results/
+│           ├── eval_results.json
+│           ├── eval_summary.json
+│           ├── urgent_training_loss.png
+│           ├── nonurgent_training_loss.png
+│           ├── urgent_trainer_log.jsonl
+│           ├── nonurgent_trainer_log.jsonl
+│           ├── urgent_train_results.json
+│           └── nonurgent_train_results.json
+├── Adapter configs/
+│   ├── sft_urgent_adapter/adapter_config.json
+│   └── sft_nonurgent_adapter/adapter_config.json
 ├── LICENSE
 └── README.md
 ```
