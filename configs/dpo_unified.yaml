@@ -1,0 +1,50 @@
+### DPO config for UNIFIED Kimi-VL model (Approach 2: Prompt-Conditioned)
+### Trains on [URGENT]-tagged preference pairs from the unified SFT checkpoint
+
+# Model — start from unified SFT checkpoint
+model_name_or_path: moonshotai/Kimi-VL-A3B-Instruct
+adapter_name_or_path: output/sft_unified/checkpoint-final
+trust_remote_code: true
+
+# Training method
+stage: dpo
+do_train: true
+finetuning_type: lora
+bf16: true
+dpo_beta: 0.1
+dpo_loss: sigmoid
+
+# LoRA config
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj
+
+# Dataset
+dataset: egoblind_unified_dpo
+dataset_dir: data/
+template: kimi
+cutoff_len: 4096
+preprocessing_num_workers: 8
+
+# Training params
+output_dir: output/dpo_unified
+num_train_epochs: 3
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16
+learning_rate: 5.0e-6
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+max_grad_norm: 1.0
+weight_decay: 0.1
+
+# Memory
+gradient_checkpointing: true
+flash_attn: auto
+
+# Logging & saving
+logging_steps: 10
+save_steps: 100
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true

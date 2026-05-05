@@ -1,0 +1,48 @@
+### SFT config for UNIFIED Kimi-VL model (Approach 2: Prompt-Conditioned)
+### Trains on ALL examples with [URGENT]/[NON-URGENT] tags in system prompt.
+### Urgent targets are shortest correct answers; non-urgent are longest.
+
+# Model
+model_name_or_path: moonshotai/Kimi-VL-A3B-Instruct
+trust_remote_code: true
+
+# Training method
+stage: sft
+do_train: true
+finetuning_type: lora
+bf16: true
+
+# LoRA config
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+lora_target: q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj
+
+# Dataset
+dataset: egoblind_combined_sft
+dataset_dir: data/
+template: kimi
+cutoff_len: 4096
+preprocessing_num_workers: 8
+
+# Training params
+output_dir: output/sft_unified
+num_train_epochs: 5
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16
+learning_rate: 2.0e-5
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+max_grad_norm: 1.0
+weight_decay: 0.1
+
+# Memory
+gradient_checkpointing: true
+flash_attn: auto
+
+# Logging & saving
+logging_steps: 10
+save_steps: 200
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
