@@ -1,0 +1,48 @@
+### model
+model_name_or_path: moonshotai/Kimi-VL-A3B-Instruct
+trust_remote_code: true
+quantization_bit: 4
+
+### method
+stage: dpo
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: q_proj,v_proj
+# adapter_name_or_path: removed - training from base
+# create_new_adapter: removed
+
+### DPO-specific
+pref_beta: 0.1
+pref_loss: sigmoid
+
+### dataset
+dataset: egoblind_dpo_vision
+dataset_dir: /orcd/home/002/julia225/LLaMA-Factory/data
+template: kimi_vl_nothink
+cutoff_len: 2048
+overwrite_cache: true
+preprocessing_num_workers: 1
+
+### output
+output_dir: /home/julia225/egoblind-ra/output/dpo_from_base_v1
+logging_steps: 10
+save_steps: 100
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-5
+num_train_epochs: 2
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+weight_decay: 0.01
+max_grad_norm: 1.0
+bf16: true
+gradient_checkpointing: false
+ddp_find_unused_parameters: false
