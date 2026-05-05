@@ -1,202 +1,180 @@
 # EgoBlind-RA
 
-Risk-adaptive egocentric visual assistance for blind and low-vision users. Classifies queries by urgency and routes them to response policies matched to safety stakes. Evaluated on the [EgoBlind benchmark](https://arxiv.org/abs/2503.08221).
+**Risk-adaptive egocentric visual assistance for blind and low-vision (BLV) users.**
+
+Classifies queries by urgency and routes them to response policies matched to safety stakes. Built on [Kimi-VL-A3B-Instruct](https://huggingface.co/moonshotai/Kimi-VL-A3B-Instruct) and evaluated on the [EgoBlind benchmark](https://arxiv.org/abs/2503.08221).
 
 **Julia Kim & Xander Backus** · MIT · Equal contribution
 
-## Overview
+---
 
-Existing multimodal models apply a single inference policy across all queries, ignoring variability in urgency and risk. EgoBlind-RA addresses this by classifying each query as *urgent* or *non-urgent* and routing it accordingly:
+## Headline results
 
-- **Urgent queries** (navigation hazards, safety-critical) → low-latency, conservative guidance
-- **Non-urgent queries** → additional computation for higher-quality answers
+We compare a uniform-policy baseline against four fine-tuned configurations on the EgoBlind test set (n = 1,283), scored by composite loss (lower is better):
 
-We implement and compare two architectures:
+| Method | Composite loss | vs SFT | Mean words | Similarity |
+|---|---|---|---|---|
+| Baseline (uniform-policy Kimi-VL) | 0.6067 | +61.6% | 84.1 | 0.350 |
+| **SFT (vision LoRA)** | **0.3754** | — | 2.2 | 0.589 |
+| SFT → DPO with composite-loss pairs | 0.4334 | +15.5% | 7.3 | 0.522 |
+| SFT → DPO with token-overlap F1 pairs | 0.5259 | +40.1% | 18.2 | 0.424 |
+| Baseline → DPO with token-overlap F1 pairs | 0.5430 | +44.7% | 25.2 | 0.407 |
 
-| | Approach 1: Xander | Approach 2: Julia |
-|-|---------------------|---------------------|
-| Models | Two separate LoRA adapters | One single LoRA adapter |
-| Routing | Classifier → different models | Classifier → different system prompts |
-| SFT | Two training runs (urgent, non-urgent) | One training run (mixed, tagged) |
-| DPO | On urgent model only | On unified model with `[URGENT]` tag |
-| Inference VRAM | 2× model loads | 1× model load |
+**Key findings.** SFT with shortest-correct-reference targets reduces composite loss by 38% over baseline. Every DPO variant regresses SFT — across two pair-scoring methods (composite loss vs token-overlap F1) and two initialization points (SFT-init vs baseline-init). Failure analysis traces the regression to a uniform verbosity drift across all question types and an internal conflict between the similarity and latency components of the composite reward (see `scripts/analysis/`).
 
-The core question: can a single model learn to behave differently based on an urgency tag, or does hard-routing to specialized models produce better results?
+The CLIP-based urgency classifier achieves **0.905 ROC-AUC** on the held-out test set.
+
+---
+
+## Architecture
+
+We instantiate **Approach 2** from our paper: a unified prompt-conditioned LoRA adapter trained on the full dataset, with the predicted urgency injected as a control tag (`[URGENT]` / `[NON-URGENT]`) prepended to the system prompt. The composite loss switches per example based on the prepended tag — urgent examples are optimized with a latency penalty against the *shortest* correct reference; non-urgent are optimized without latency against the *longest* reference.
+
+```
+EgoBlind query (video + question)
+            │
+            ▼
+   CLIP urgency classifier  ──── 0.905 ROC-AUC
+            │
+       [URGENT] | [NON-URGENT] tag
+            │
+            ▼
+  Kimi-VL-A3B + unified LoRA adapter
+   (composite loss switched per tag)
+            │
+            ▼
+  Token-level F1 + composite loss eval
+```
+
+A modular hard-routing variant (Approach 1) with two specialized adapters was explored as an earlier design and is not part of the final pipeline.
+
+---
+
+## Trained models
+
+All adapters are hosted on Hugging Face. See [`results/ADAPTERS.md`](results/ADAPTERS.md) for loading instructions.
+
+| Model | Hugging Face |
+|---|---|
+| CLIP urgency classifier | [julia225/egoblind-ra-clip-urgency](https://huggingface.co/julia225/egoblind-ra-clip-urgency) |
+| SFT (vision) | [julia225/egoblind-ra-sft-vision](https://huggingface.co/julia225/egoblind-ra-sft-vision) |
+| SFT → DPO (composite-loss pairs) | [julia225/egoblind-ra-dpo-composite](https://huggingface.co/julia225/egoblind-ra-dpo-composite) |
+| SFT → DPO (token-overlap F1 pairs) | [julia225/egoblind-ra-dpo-f1-sft](https://huggingface.co/julia225/egoblind-ra-dpo-f1-sft) |
+| Baseline → DPO (token-overlap F1 pairs) | [julia225/egoblind-ra-dpo-f1-baseline](https://huggingface.co/julia225/egoblind-ra-dpo-f1-baseline) |
+
+---
 
 ## Repo structure
 
 ```
 EgoBlind-RA/
 ├── data/
-│   ├── train_labeled.csv
-│   ├── test_labeled.csv
-│   └── baseline_frames/
 ├── docs/
-│   ├── project_proposal.pdf
-│   └── midterm_proposal.pdf
 ├── models/
-│   ├── clip_urgency_classifier.ipynb
+│   ├── clip_urgency_classifier/
 │   └── prompt_conditioned_unified_model.ipynb
+├── configs/
+├── slurm/
 ├── scripts/
-│   ├── classify_urgency.py
-│   ├── run_baseline.py
-│   ├── step2_grid_search.py
-│   ├── filter_grid_search.py
-│   ├── prepare_data.py
-│   ├── prepare_egoblind_data.py
-│   ├── save_frames.py
-│   ├── extract_frames.py
-│   ├── kimi_api_baseline.py
-│   ├── inference.py
-│   ├── generate_dpo_pairs.py
-│   ├── aws_setup.sh
-│   └── remote_setup.sh
+│   ├── analysis/
+│   └── legacy/
+├── kimi_vl_patches/
 ├── results/
-│   └── baseline/
-│       ├── all_results.json
-│       ├── baseline_predictions.json
-│       ├── best_config_breakdown.json
-│       ├── top_20_results.json
-│       ├── summary_table.tsv
-│       └── engaging_results/
-│           ├── eval_results.json
-│           ├── eval_summary.json
-│           ├── urgent_training_loss.png
-│           ├── nonurgent_training_loss.png
-│           ├── urgent_trainer_log.jsonl
-│           ├── nonurgent_trainer_log.jsonl
-│           ├── urgent_train_results.json
-│           └── nonurgent_train_results.json
-├── Adapter configs/
-│   ├── sft_urgent_adapter/adapter_config.json
-│   └── sft_nonurgent_adapter/adapter_config.json
+│   ├── baseline/
+│   ├── sft_vision/
+│   ├── dpo_composite/
+│   ├── dpo_f1_sft/
+│   ├── dpo_f1_baseline/
+│   ├── dpo_pairs/
+│   ├── analysis/
+│   ├── final/
+│   └── ADAPTERS.md
+├── legacy_adapter_configs/
 ├── LICENSE
 └── README.md
 ```
 
-## Data
-The dataset is derived from the **EgoBlind** project (Xiao et al., 2025).  As described [here](https://github.com/doc-doc/EgoBlind), the data is characterised by: 
+- `data/` — EgoBlind splits with urgency labels, plus baseline frames.
+- `docs/` — project proposal, midterm report, final paper.
+- `models/clip_urgency_classifier/` — CLIP fusion-head classifier (notebook + Hugging Face link).
+- `configs/` — LLaMA-Factory configs (SFT + 3 DPO variants).
+- `slurm/` — Engaging cluster SLURM submission scripts.
+- `scripts/` — data prep, baseline, DPO pair generation, eval.
+- `scripts/analysis/` — five DPO failure analyses (1 and 2 already run; outputs in `results/analysis/`).
+- `scripts/legacy/` — abandoned AWS pipeline; kept for reference only.
+- `kimi_vl_patches/` — compatibility patches for Kimi-VL × `transformers >= 4.50`.
+- `results/` — predictions, training logs, and analysis JSONs for every method.
+- `legacy_adapter_configs/` — Approach 1 (bifurcated, abandoned) adapter configs.
 
-- **Regions of Interest (ROI):** Often off-center and not well-focused, reflecting the challenges of egocentric visual perception.  
-- **Questions:** Formulated to capture user intention in specific situations. They may be ambiguous if spatial and temporal context is ignored.  
-- **Answers:** Must be not only visually correct but also contextually helpful to the user, considering both space and time.  
+---
 
-![egoblind](https://github.com/user-attachments/assets/eaeae917-ffab-47f3-a68d-cca74118fcde)
-*(Source: [EgoBlind GitHub](https://github.com/doc-doc/EgoBlind))*
+## Reproducing the pipeline
 
-## Pipeline
+### Environment
 
-### 1. Urgency annotation (teacher)
-
-`classify_urgency.py` uses GPT to label every question–video pair in EgoBlind as `urgent` or `non-urgent` based on immediate physical safety implications for a blind user. A statistically significant subset is manually validated for agreement.
-
-### 2. Urgency classifier (student)
-
-`models/CLIP_Urgency_Classifier.ipynb` trains a lightweight CLIP-based binary classifier on the annotated labels. The model encodes both the video (sampled frames via ViT) and the text query, fuses the representations, and predicts urgency. Evaluated with F1 to balance precision and recall — false negatives in safety-critical cases are especially costly.
-
-### 3. Routing + response policies
-
-At inference time, the urgency classifier routes each query:
-
-```
-EgoBlind query
-      │
-      ▼
-CLIP urgency classifier
-      │
-   urgent?
-   /      \
-  yes      no
-  │         │
-low-latency  best-of-k
- policy      policy
-      │         │
-      └────┬────┘
-           ▼
-     EgoBlind metrics
-```
-
-**Approach 1 (Xander):** hard-routes to two separate fine-tuned LoRA adapters with regime-specific loss functions.
-
-**Approach 2 (Julia):** appends `[URGENT]` or `[NON-URGENT]` tag to a single LoRA adapter trained on a mixed objective.
-
-## Metrics
-
-| Component | Metric |
-|---|---|
-| Urgency classifier | F1 |
-| Generative model | Accuracy + utility score (EgoBlind) |
-| Urgent responses | Latency penalty (generation time + verbosity) |
-
-## Reproducing
-
-### Prerequisites
+Engaging or any SLURM cluster with A100 / L40S:
 
 ```bash
-pip install openai torch torchvision transformers
-export MOONSHOT_API_KEY="your-key-here"
+bash slurm/00_setup_env.sh
+conda activate egoblind
+huggingface-cli login
+python kimi_vl_patches/setup_patches.py    # one-time, idempotent
 ```
 
-### Phase 1: Baseline (laptop)
+Pinned versions: `transformers==4.56.0`, `peft==0.13.0`, `trl==0.24.0`, `accelerate==1.11.0`, `datasets==4.0.0`, `tokenizers==0.22.0`, `torch==2.5.1+cu121`.
+
+### Pipeline
 
 ```bash
-python scripts/kimi_api_baseline.py \
-    --test_data /path/to/egoblind_test.json \
-    --output_path results/baseline/baseline_predictions.json
+# 1. Urgency labels (already in data/, regenerate with:)
+python scripts/classify_urgency.py     # uses GPT-5.2 to label train + test
+
+# 2. CLIP urgency classifier (notebook)
+jupyter notebook models/clip_urgency_classifier/clip_urgency_classifier.ipynb
+
+# 3. Uniform-policy baseline (Kimi API)
+python scripts/kimi_api_baseline.py
+
+# 4. Vision SFT (~4 h on A100)
+sbatch slurm/02_sft.sh
+
+# 5a. DPO with composite-loss-scored pairs (~4 h gen + 1.5 h train)
+sbatch slurm/run_dpo_gen.sh
+sbatch slurm/run_dpo_train.sh
+
+# 5b. DPO with token-overlap F1 pairs
+sbatch slurm/run_dpo_gen_f1.sh
+sbatch slurm/run_dpo_f1.sh
+
+# 6. Score every method against the composite-loss leaderboard
+sbatch slurm/run_score.sh
 ```
 
-### Phase 2: Training (AWS)
+### Failure analyses
 
 ```bash
-# 1. Launch and set up instance
-bash scripts/aws_setup.sh
-ssh -i ~/.ssh/your-key.pem ubuntu@<IP>
-bash scripts/remote_setup.sh
-
-# 2. Upload data and configs
-scp -r data/ configs/ scripts/ ubuntu@<IP>:~/LLaMA-Factory/
-
-# 3. Prepare data with urgency labels and tags
-python scripts/prepare_egoblind_data.py \
-    --egoblind_dir /path/to/egoblind \
-    --urgency_labels /path/to/urgency_labels.json \
-    --output_dir data/
-
-# 4. SFT
-llamafactory-cli train configs/sft_unified.yaml   # Approach 2 (Julia)
-
-# 5. Generate DPO pairs
-python scripts/generate_dpo_pairs.py \
-    --adapter_path output/sft_unified/checkpoint-final \
-    --data_path data/egoblind_urgent_for_dpo.json \
-    --output_path data/egoblind_unified_dpo.json \
-    --alpha 0.4 --beta 0.3 --gamma 0.3
-
-# 6. DPO training
-llamafactory-cli train configs/dpo_unified.yaml
-
-# 7. Download checkpoint before terminating
-scp -r ubuntu@<IP>:~/LLaMA-Factory/output/ ./output/
+python scripts/analysis/analysis_1_wins_losses.py            # already run
+python scripts/analysis/analysis_2_verbosity.py              # already run
+python scripts/analysis/analysis_3_generalization_gap.py
+python scripts/analysis/analysis_4_pair_case_correlation.py
+python scripts/analysis/analysis_5_reward_decomposition.py
 ```
 
-> ⚠️ **Important:** terminate your AWS instance when done. Download the adapter checkpoint (~200–400MB) before shutting down.
+---
 
-### Phase 3: Evaluation
+## Author contributions
 
-```bash
-python scripts/inference.py \
-    --adapter_path output/dpo_unified/checkpoint-final \
-    --test_data /path/to/egoblind_test.json \
-    --output_path output/unified_predictions.json
-```
+- **Julia Kim** — CLIP urgency classifier (architecture, training, evaluation), composite loss design and grid search, three-filter DPO pair construction, DPO failure analyses (1–5), Kimi-VL × transformers compatibility patches.
+- **Xander Backus** — GPT-5.2-based urgency labeling pipeline, F1-scored DPO pair construction, Engaging cluster setup and LLaMA-Factory integration.
+- **Joint** — problem framing, dataset preparation, paper writing.
 
-## Results
-
-Baseline results are in `results/baseline/`. See `summary_table.tsv` for a full breakdown and `best_config_breakdown.json` for the top configuration analysis.
+---
 
 ## References
 
-- [EgoBlind: Towards Egocentric Visual Assistance for the Blind](https://arxiv.org/abs/2503.08221) (Xiao et al., 2025)
-- [CLIP: Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020) (Radford et al., 2021)
-- [VizWiz](https://dl.acm.org/doi/10.1145/1866029.1866080) (Bigham et al., 2010)
-- [Ego4D](https://arxiv.org/abs/2110.07058) (Grauman et al., 2021)
+- Xiao et al., *EgoBlind: Towards Egocentric Visual Assistance for the Blind*, 2025. [arXiv:2503.08221](https://arxiv.org/abs/2503.08221)
+- Radford et al., *Learning Transferable Visual Models From Natural Language Supervision*, 2021. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
+- Hu et al., *LoRA: Low-Rank Adaptation of Large Language Models*, 2021. [arXiv:2106.09685](https://arxiv.org/abs/2106.09685)
+- Rafailov et al., *Direct Preference Optimization*, 2023. [arXiv:2305.18290](https://arxiv.org/abs/2305.18290)
+- Bigham et al., *VizWiz: Nearly Real-time Answers to Visual Questions*, 2010.
+- Grauman et al., *Ego4D: Around the World in 3,000 Hours of Egocentric Video*, 2021. [arXiv:2110.07058](https://arxiv.org/abs/2110.07058)
