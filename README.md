@@ -134,46 +134,51 @@ EgoBlind-RA/
 
 ### Environment
 
-Engaging or any SLURM cluster with A100 / L40S:
+Requires a GPU with at least 40GB VRAM (A100, L40S, or equivalent). We developed on MIT's Engaging cluster; the `slurm/` scripts are SLURM job templates that you'll need to adapt to your own cluster.
 
 ```bash
-bash slurm/00_setup_env.sh
+conda create -n egoblind python=3.10 -y
 conda activate egoblind
+pip install transformers==4.56.0 peft==0.13.0 trl==0.24.0 accelerate==1.11.0 \
+    datasets==4.0.0 tokenizers==0.22.0 torch==2.5.1
+pip install git+https://github.com/openai/CLIP.git
+pip install git+https://github.com/hiyouga/LLaMA-Factory.git
 huggingface-cli login
 python kimi_vl_patches/setup_patches.py    # one-time, idempotent
 ```
 
-Pinned versions: `transformers==4.56.0`, `peft==0.13.0`, `trl==0.24.0`, `accelerate==1.11.0`, `datasets==4.0.0`, `tokenizers==0.22.0`, `torch==2.5.1+cu121`.
-
 ### Shared steps
 
 ```bash
-# 1. Urgency labels (already in data/, regenerate with:)
-python scripts/classify_urgency.py     # uses GPT-5.2 to label train + test
+# 1. Urgency labels (already in data/; regenerate with GPT-5.2 API access)
+python scripts/classify_urgency.py
 
 # 2. CLIP urgency classifier (notebook)
 jupyter notebook models/clip_urgency_classifier/clip_urgency_classifier.ipynb
 
-# 3. Uniform-policy baseline (Kimi API)
+# 3. Uniform-policy baseline (requires Moonshot API key)
 python scripts/kimi_api_baseline.py
 ```
 
 ### Approach 2 (unified adapter)
 
+Training uses LLaMA-Factory. The `slurm/` scripts wrap these commands for SLURM; run directly if not on a cluster.
+
 ```bash
 # 4. Vision SFT (~4 h on A100)
-sbatch slurm/02_sft.sh
+llamafactory-cli train configs/sft_unified.yaml
 
-# 5a. DPO with composite-loss-scored pairs (~4 h gen + 1.5 h train)
-sbatch slurm/run_dpo_gen.sh
-sbatch slurm/run_dpo_train.sh
+# 5a. DPO with composite-loss-scored pairs
+python scripts/generate_dpo_pairs.py
+llamafactory-cli train configs/dpo_unified.yaml
 
-# 5b. DPO with token-overlap F1 pairs
-sbatch slurm/run_dpo_gen_f1.sh
-sbatch slurm/run_dpo_f1.sh
+# 5b. DPO with token-overlap F1 pairs (from SFT or from base)
+python scripts/generate_dpo_pairs_f1.py
+llamafactory-cli train configs/dpo_f1_sft.yaml
+llamafactory-cli train configs/dpo_f1_baseline.yaml
 
 # 6. Score every method
-sbatch slurm/run_score.sh
+python scripts/run_dpo_eval.py
 ```
 
 ### Approach 1 (bifurcated adapters)
@@ -183,22 +188,25 @@ sbatch slurm/run_score.sh
 python scripts/prepare_vision_sft.py
 
 # 5. Train urgent + non-urgent SFT adapters
-#    Uses configs/sft_urgent_vision.yaml and configs/sft_nonurgent_vision_v2.yaml
-sbatch slurm/run_eval_three_conditions.sh  # or submit via LLaMA-Factory CLI
+llamafactory-cli train configs/sft_urgent_vision.yaml
+llamafactory-cli train configs/sft_nonurgent_vision_v2.yaml
 
-# 6. Generate DPO pairs from each model
+# 6. Generate DPO pairs from each adapter
 python scripts/generate_dpo_pairs_vision.py
 python scripts/generate_dpo_pairs_vision_base.py
 python scripts/generate_dpo_pairs_vision_base_nonurgent.py
 python scripts/generate_dpo_pairs_vision_sft_nonurgent.py
 
 # 7. Train DPO adapters
-#    Uses configs/dpo_*.yaml
+llamafactory-cli train configs/dpo_urgent_vision.yaml
+llamafactory-cli train configs/dpo_nonurgent_sft.yaml
+llamafactory-cli train configs/dpo_urgent_base.yaml
+llamafactory-cli train configs/dpo_nonurgent_base.yaml
 
-# 8. Evaluate: 3-condition eval (base, oracle, zero-shot pipeline)
+# 8. Evaluate: 3-condition eval (base model, oracle routing, zero-shot pipeline)
 python scripts/evaluate_three_conditions.py
 
-# 9. Evaluate: full pipeline with CLIP classifier
+# 9. Evaluate: full end-to-end pipeline with CLIP classifier
 python scripts/evaluate_pipeline_clip.py
 
 # 10. Re-score with canonical paper params (no GPU needed)
@@ -208,8 +216,8 @@ python scripts/rescore_pipeline_canonical.py
 ### Failure analyses
 
 ```bash
-python scripts/analysis/analysis_1_wins_losses.py            # already run
-python scripts/analysis/analysis_2_verbosity.py              # already run
+python scripts/analysis/analysis_1_wins_losses.py
+python scripts/analysis/analysis_2_verbosity.py
 python scripts/analysis/analysis_3_generalization_gap.py
 python scripts/analysis/analysis_4_pair_case_correlation.py
 python scripts/analysis/analysis_5_reward_decomposition.py
