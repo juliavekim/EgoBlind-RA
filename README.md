@@ -6,6 +6,8 @@ Classifies queries by urgency and routes them to response policies matched to sa
 
 **Julia Kim & Xander Backus** · MIT · Equal contribution
 
+📄 **Paper:** arXiv preprint — LaTeX source in [`paper/`](paper/). *(arXiv link added on posting.)*
+
 ---
 
 ## Headline results
@@ -103,7 +105,8 @@ See [`results/ADAPTERS.md`](results/ADAPTERS.md) for loading instructions, inclu
 ```
 EgoBlind-RA/
 ├── data/                           EgoBlind splits with urgency labels + frames
-├── docs/                           Proposal, midterm, final paper, presentation
+├── paper/                          arXiv preprint LaTeX source
+├── talk/                           Presentation slides
 ├── models/
 │   ├── clip_urgency_classifier/    CLIP fusion-head classifier notebook
 │   └── prompt_conditioned_unified_model.ipynb
@@ -124,6 +127,7 @@ EgoBlind-RA/
 │   ├── final/                      Summary JSONs (both approaches)
 │   └── ADAPTERS.md
 ├── legacy_adapter_configs/         Early Approach 1 adapter configs (pre-vision)
+├── DATA.md                         Data provenance, EgoBlind terms, privacy note
 ├── LICENSE
 └── README.md
 ```
@@ -222,6 +226,18 @@ python scripts/analysis/analysis_3_generalization_gap.py
 python scripts/analysis/analysis_4_pair_case_correlation.py
 python scripts/analysis/analysis_5_reward_decomposition.py
 ```
+
+---
+
+## Data and licensing
+
+The code in this repository is MIT licensed. **The data is not.**
+`data/` is derived from the [EgoBlind benchmark](https://github.com/doc-doc/EgoBlind),
+which permits research use only and requires that redistribution cite the source
+videos. The frames are first-person recordings from the daily lives of blind and
+visually impaired people and may incidentally capture bystanders.
+
+Read [DATA.md](DATA.md) before using or redistributing anything under `data/`.
 
 ---
 
