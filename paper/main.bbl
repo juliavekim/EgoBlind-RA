@@ -1,0 +1,146 @@
+\begin{thebibliography}{21}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bourne et~al.(2017)]{bourne2017magnitude}
+Rupert~R.A. Bourne et~al.
+\newblock Magnitude, temporal trends, and projections of the global prevalence
+  of blindness and distance and near vision impairment: a systematic review and
+  meta-analysis.
+\newblock \emph{The Lancet Global Health}, 5\penalty0 (9):\penalty0 e888--e897,
+  2017.
+
+\bibitem[Xiao et~al.(2025)]{xiao2025egoblind}
+Junbin Xiao et~al.
+\newblock Egoblind: Towards egocentric visual assistance for the blind.
+\newblock \emph{arXiv preprint arXiv:2503.08221}, 2025.
+
+\bibitem[Bigham et~al.(2010)]{bigham2010vizwiz}
+Jeffrey~P. Bigham et~al.
+\newblock Vizwiz: Nearly real-time answers to visual questions.
+\newblock In \emph{Proceedings of the 23nd Annual ACM Symposium on User
+  Interface Software and Technology}, 2010.
+
+\bibitem[Liu et~al.(2023)]{liu2023llava}
+Haotian Liu et~al.
+\newblock Visual instruction tuning.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+
+\bibitem[Dai et~al.(2023)]{dai2023instructblip}
+Wenliang Dai et~al.
+\newblock Instructblip: Towards general-purpose vision-language models with
+  instruction tuning.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+
+\bibitem[Gurari et~al.(2018)Gurari, Li, Stangl, Guo, Lin, Grauman, Luo, and
+  Bigham]{gurari2018vizwiz}
+Danna Gurari, Qing Li, Abigale~J Stangl, Anhong Guo, Chi Lin, Kristen Grauman,
+  Jiebo Luo, and Jeffrey~P Bigham.
+\newblock Vizwiz grand challenge: Answering visual questions from blind people.
+\newblock \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, pages 3608--3617, 2018.
+
+\bibitem[Grauman et~al.(2021)]{grauman2021ego4d}
+Kristen Grauman et~al.
+\newblock Ego4d: Around the world in 3,000 hours of egocentric video.
+\newblock \emph{arXiv preprint arXiv:2110.07058}, 2021.
+
+\bibitem[Das et~al.(2018)]{das2018embodied}
+Abhishek Das et~al.
+\newblock Embodied question answering.
+\newblock In \emph{Proceedings of the IEEE Conference on Computer Vision and
+  Pattern Recognition (CVPR)}, 2018.
+
+\bibitem[Bai et~al.(2023)Bai, Bai, Yang, Wang, Tan, Wang, Lin, Zhou, and
+  Zhou]{bai2023qwenvl}
+Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang, Sinan Tan, Peng Wang, Junyang
+  Lin, Chang Zhou, and Jingren Zhou.
+\newblock Qwen-vl: A versatile vision-language model for understanding,
+  localization, text reading, and beyond.
+\newblock \emph{arXiv preprint arXiv:2308.12966}, 2023.
+
+\bibitem[AI(2025)]{kimivl2025}
+Moonshot AI.
+\newblock Kimi-vl technical report, 2025.
+\newblock \url{https://github.com/MoonshotAI/Kimi-VL}.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal,
+  Sastry, Askell, Mishkin, Clark, et~al.]{radford2021clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh,
+  Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark,
+  et~al.
+\newblock Learning transferable visual models from natural language
+  supervision.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2021.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2022lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock Lora: Low-rank adaptation of large language models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+
+\bibitem[Ouyang et~al.(2022)]{ouyang2022instructgpt}
+Long Ouyang et~al.
+\newblock Training language models to follow instructions with human feedback.
+\newblock \emph{arXiv preprint arXiv:2203.02155}, 2022.
+
+\bibitem[Rafailov et~al.(2023)]{rafailov2023dpo}
+Rafael Rafailov et~al.
+\newblock Direct preference optimization: Your language model is secretly a
+  reward model.
+\newblock \emph{arXiv preprint arXiv:2305.18290}, 2023.
+
+\bibitem[Ethayarajh et~al.(2024)Ethayarajh, Xu, Muennighoff, Jurafsky, and
+  Kiela]{ethayarajh2024kto}
+Kawin Ethayarajh, Winnie Xu, Niklas Muennighoff, Dan Jurafsky, and Douwe Kiela.
+\newblock Kto: Model alignment as prospect theoretic optimization.
+\newblock \emph{arXiv preprint arXiv:2402.01306}, 2024.
+
+\bibitem[Lee et~al.(2023)Lee, Phatale, Mansoor, Lu, Mesnard, Ferret, Bishop,
+  Hall, Carbune, and Rastogi]{lee2023rlaif}
+Harrison Lee, Samrat Phatale, Hassan Mansoor, Kellie~Ren Lu, Thomas Mesnard,
+  Johan Ferret, Colton Bishop, Ethan Hall, Victor Carbune, and Abhinav Rastogi.
+\newblock Rlaif: Scaling reinforcement learning from human feedback with ai
+  feedback.
+\newblock \emph{arXiv preprint arXiv:2309.00267}, 2023.
+
+\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song, Zhang, Li, Wu, and
+  Guo]{shao2024deepseekmath}
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Mingchuan Zhang,
+  Y.K. Li, Y.~Wu, and Daya Guo.
+\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open
+  language models.
+\newblock \emph{arXiv preprint arXiv:2402.03300}, 2024.
+
+\bibitem[Whitehead et~al.(2022)]{whitehead2022reliable}
+Spencer Whitehead et~al.
+\newblock Reliable visual question answering: Abstain rather than answer
+  incorrectly.
+\newblock In \emph{Proceedings of the European Conference on Computer Vision
+  (ECCV)}, 2022.
+
+\bibitem[Kuhn et~al.(2023)]{kuhn2023semantic}
+Lorenz Kuhn et~al.
+\newblock Semantic uncertainty: Linguistic invariances for uncertainty
+  estimation in natural language generation.
+\newblock \emph{arXiv preprint arXiv:2302.09664}, 2023.
+
+\bibitem[Schuster et~al.(2022)]{schuster2022confident}
+Tal Schuster et~al.
+\newblock Confident adaptive language modeling.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2022.
+
+\bibitem[Zheng et~al.(2024)]{zheng2024llamafactory}
+Yaowei Zheng et~al.
+\newblock Llama-factory: Unified efficient fine-tuning of 100+ language models.
+\newblock \emph{arXiv preprint arXiv:2403.13372}, 2024.
+
+\end{thebibliography}

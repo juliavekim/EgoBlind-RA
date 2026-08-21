@@ -6,8 +6,11 @@
 
 
 % ready for submission
-\PassOptionsToPackage{numbers, compress, maxnames=3}{natbib}
-\usepackage{neurips_2024}
+\PassOptionsToPackage{numbers, compress}{natbib}
+\usepackage[preprint]{neurips_2024}
+\makeatletter
+\renewcommand{\@noticestring}{Preprint.}
+\makeatother
 
 
 % to compile a preprint version, e.g., for submission to arXiv, add add the
@@ -33,6 +36,7 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
+\usepackage{graphicx}     % figure inclusion
 \usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta, shapes, fit, calc}
@@ -109,7 +113,7 @@ As illustrated in Figure~\ref{fig:pipeline}, EgoBlind-RA operates as a two-stage
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.75\columnwidth]{Screenshot 2026-05-11 at 7.52.58 PM.png}
+\includegraphics[width=0.75\columnwidth]{pipeline.pdf}
 \caption{EgoBlind-RA pipeline. A CLIP-based classifier predicts query urgency from the joint video--text representation; the predicted urgency then routes to one of two architectural variants. Approach~1 selects between separate urgent and non-urgent LoRA adapters. Approach~2 prepends an urgency tag to a single unified adapter. Both are scored under the same regime-specific composite loss.}
 \label{fig:pipeline}
 \end{figure}
@@ -368,7 +372,7 @@ For Approach~1, threshold tuning to favour recall would directly improve urgent-
 For Approach~2, two extensions are most relevant. First, the DPO regression points toward methods that retain per-example supervision rather than pairwise preference. Candidates include reward-weighted SFT and teacher-model distillation. Second, while the unified adapter is robust to noisy classifier routing at deployment, training-time label noise hurts more substantially: an ablation in which SFT trains on CLIP-predicted rather than ground-truth urgency tags incurs an 18.7\% composite-loss regression. Effort spent improving the urgency classifier therefore yields larger returns at training time than at inference time, the opposite of Approach~1, where deployment-time recall is the dominant bottleneck.
 
 \section{Code and Reproducibility}
-Code, trained LoRA adapters, and reproduction instructions for EgoBlind-RA will be released publicly upon acceptance. An anonymized snapshot of the implementation is available for review through the conference's anonymous-submission system.
+Code, trained LoRA adapters, and reproduction instructions for EgoBlind-RA are available at \url{https://github.com/juliavekim/EgoBlind-RA}.
 
 \bibliographystyle{unsrtnat}
 \bibliography{ref}
