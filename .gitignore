@@ -8,6 +8,7 @@ __pycache__/
 *.egg-info/
 
 # LaTeX build artifacts
+# Note: main.bbl is deliberately committed — arXiv does not run bibtex.
 *.aux
 *.bbl.bak
 *.blg
@@ -17,6 +18,14 @@ __pycache__/
 *.out
 *.synctex.gz
 *.toc
+# Beamer (talk/slide.tex)
+*.nav
+*.snm
+*.vrb
+
+# Built PDFs. pipeline.pdf is a source figure and stays tracked.
+paper/main.pdf
+talk/slide.pdf
 
 # Environment / secrets
 .env

@@ -233,9 +233,14 @@ python scripts/analysis/analysis_5_reward_decomposition.py
 
 The code in this repository is MIT licensed. **The data is not.**
 `data/` is derived from the [EgoBlind benchmark](https://github.com/doc-doc/EgoBlind),
-which permits research use only and requires that redistribution cite the source
-videos. The frames are first-person recordings from the daily lives of blind and
-visually impaired people and may incidentally capture bystanders.
+which is licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) —
+non-commercial research, education, and evaluation only — and requires that
+redistribution attach the source links of the videos. The frames are first-person
+recordings from the daily lives of blind and visually impaired people and may
+incidentally capture bystanders.
+
+The MIT LICENSE also does not cover the third-party style files `paper/neurips_2024.sty`
+and `talk/Ritsumeikan.sty`.
 
 Read [DATA.md](DATA.md) before using or redistributing anything under `data/`.
 

@@ -15,12 +15,26 @@ The videos and question annotations come from the **EgoBlind** benchmark:
 > Xiao et al., *EgoBlind: Towards Egocentric Visual Assistance for the Blind*, 2025.
 > [arXiv:2503.08221](https://arxiv.org/abs/2503.08221) · <https://github.com/doc-doc/EgoBlind>
 
-EgoBlind states that the dataset **may be used for research purposes only**, and that
-redistribution must **attach the source links of the videos**. The frames in
-`data/baseline_frames/` are derived images, redistributed here for research
-reproducibility only. Per-video source links are maintained by the EgoBlind authors in
-the video-source list published in their repository; consult that list for the
-provenance of any individual `video_name`.
+EgoBlind's processed dataset and annotations are licensed
+**[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)**. Their terms state:
+
+- **Permitted:** non-commercial research, education, and evaluation.
+- **Prohibited:** commercial use without prior permission, and re-distribution of
+  original video files where those files are subject to third-party restrictions.
+- **Attribution:** cite the EgoBlind paper, and **attach the source links of the
+  videos** when re-distributing any material derived from them.
+
+The frames in `data/baseline_frames/` are derived images, redistributed here for
+research reproducibility only. Per-video source links are published by the EgoBlind
+authors as a
+**[video-source list](https://drive.google.com/file/d/1Wob42tJ95DL1VvKad7BPc5QIlHtiuttI/view)**
+(linked from the [EgoBlind README](https://github.com/doc-doc/EgoBlind), not stored in
+their repository); consult it for the provenance of any individual `video_name`.
+
+> **Known gap.** EgoBlind asks that source links be *attached* to a redistribution, and
+> linking their list is weaker than that. The `video_name` column in our CSVs is the
+> join key, so the proper fix is to ship a `data/video_sources.csv` mapping each
+> `video_name` to its source URL. That is not done yet.
 
 If you are the EgoBlind maintainer or a source-video rights holder and want any derived
 frames removed, please open an issue and we will take them down.
@@ -36,9 +50,13 @@ do not attempt re-identification, and do not redistribute it further.
 ## Licensing summary
 
 - **Code** in this repository (`scripts/`, `configs/`, `slurm/`, `models/`,
-  `kimi_vl_patches/`, `paper/`, `talk/`) is MIT licensed — see [LICENSE](LICENSE).
+  `kimi_vl_patches/`) and the text and figures we wrote in `paper/` and `talk/` are
+  MIT licensed — see [LICENSE](LICENSE).
 - **The LICENSE file does not extend to `data/`.** That content is governed by the
-  EgoBlind terms above and by the terms of the underlying source videos.
+  EgoBlind terms above (CC BY-NC 4.0) and by the terms of the underlying source videos.
+- **The LICENSE file does not extend to third-party style files** redistributed here
+  for build reproducibility: `paper/neurips_2024.sty` (NeurIPS 2024 author kit) and
+  `talk/Ritsumeikan.sty` (Beamer theme). Each remains under its own license.
 - **Model adapters** on Hugging Face are derived from
   [Kimi-VL-A3B-Instruct](https://huggingface.co/moonshotai/Kimi-VL-A3B-Instruct) and
   remain subject to that model's license.
